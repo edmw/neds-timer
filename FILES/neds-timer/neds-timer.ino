@@ -136,18 +136,25 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, LEDS_PIN>(leds, LEDS_NUM);
   leds_off();
 
-  FastLED.setBrightness(50);
+  FastLED.setBrightness(20);
   FastLED.show();
 
+  // SWITCH
+  pinMode(SWITCH_PIN, INPUT_PULLUP);
+  read_switch();
+  
   // BUTTON
   pinMode(BUTTON_PIN, INPUT_PULLUP);
-
+  read_button();
+  
   // BUZZER
   pinMode(BUZZER_PIN, OUTPUT);
 
   #ifdef DEBUG_ON
   Serial.println("SETUP COMPLETE");
   #endif
+
+  delay(500);
 
   prepare_loop();
 }
@@ -437,35 +444,45 @@ timer_len map_switch_to_length(switch_val val) {
 
 #define SWITCH_NUM 8
 #define SWITCH_READ_VARIANCE 16
-#define SWITCH_READ_DELAY 250
+#define SWITCH_READ_DELAY 100
+
+unsigned int switch_cur_value = 0;
 
 unsigned int switch_last_value = 0;
 elapsed_millis switch_last_change;
 
 switch_val read_switch() {
   switch_val val = (analogRead(SWITCH_PIN) - SWITCH_READ_VARIANCE) / (1024 / SWITCH_NUM);
-  if (switch_last_change > SWITCH_READ_DELAY) {
-    switch_last_change = 0;
-    switch_last_value = val;
+  if (val != switch_last_value) {
+      switch_last_change = 0;
   }
-  return switch_last_value;
+  switch_last_value = val;
+  if (switch_last_change > SWITCH_READ_DELAY) {
+    switch_cur_value = val;
+  }
+  return switch_cur_value;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // BUTTON
 
-#define BUTTON_READ_DELAY 100
+#define BUTTON_READ_DELAY 50
 
-unsigned int button_last_value = 0;
+unsigned int button_cur_value = 0;
+
+unsigned int button_last_value = 1;
 elapsed_millis button_last_change;
 
 button_val read_button() {
   int val = digitalRead(BUTTON_PIN);
-  if (button_last_change > BUTTON_READ_DELAY) {
-      button_last_change = 0;
-    button_last_value = val;
+  if (val != button_last_value) {
+    button_last_change = 0;
   }
-  return (button_last_value == LOW);
+  button_last_value = val;
+  if (button_last_change > BUTTON_READ_DELAY) {
+    button_cur_value = val;
+  }
+  return (button_cur_value == LOW);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
