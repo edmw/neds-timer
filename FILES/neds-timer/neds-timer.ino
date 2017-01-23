@@ -154,7 +154,15 @@ void setup() {
   Serial.println("SETUP COMPLETE");
   #endif
 
-  delay(500);
+  // startup animation
+  int dot = 0;
+  for (; dot < LEDS_NUM; dot++) {
+    leds[(dot - 1) % LEDS_NUM] = CRGB::Black;
+    leds[(dot + 0) % LEDS_NUM] = CRGB::Blue;
+    FastLED.show();
+    delay(500 / LEDS_NUM);
+  }
+  leds_off();
 
   prepare_loop();
 }
