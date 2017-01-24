@@ -94,6 +94,9 @@ typedef unsigned int switch_val;
 // type for switch button value (on/off)
 typedef bool button_val;
 
+// timeout for button longpress (millis)
+#define BUTTON_LONG_TIMEOUT 3000
+
 // pin for switch button (momentarily close)
 #define BUTTON_PIN 12
 
@@ -128,6 +131,8 @@ void setup() {
   Serial.println("DEBUG MODE ON");
   #endif
 
+  fastled_init();
+  
   // FLORA
   FastLED.addLeds<NEOPIXEL, FLORA_LED_PIN>(flora_led, 1);
   flora_led_off(),
@@ -136,7 +141,6 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, LEDS_PIN>(leds, LEDS_NUM);
   leds_off();
 
-  FastLED.setBrightness(20);
   FastLED.show();
 
   // SWITCH
@@ -167,6 +171,23 @@ void setup() {
   prepare_loop();
 }
 
+int fastled_brightness = 20;
+
+void fastled_init() {
+  fastled_brightness = 20;
+  FastLED.setBrightness(fastled_brightness);
+}
+
+void fastled_toggle_brightness() {
+  if (fastled_brightness == 20) {
+    fastled_brightness = 255;
+  }
+  else {
+    fastled_brightness = 20;
+  }
+  FastLED.setBrightness(fastled_brightness);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // LOOP
 
@@ -179,7 +200,10 @@ timer_val loop_timer_cur = 0;
 timer_val loop_timer_millis = 0;
 
 switch_val loop_switch_val = 0;
+
 button_val loop_button_val = false;
+bool loop_button_act = false;
+elapsed_millis last_button_millis;
 
 elapsed_millis last_action_millis;
 
@@ -308,27 +332,45 @@ void loop() {
   // switch button changes between timer setting and timer running
   button_val bval = read_button();
   if (bval && !loop_button_val) {
+    // button down
     loop_button_val = true;
+    loop_button_act = true;
+    last_button_millis = 0;
     last_action_millis = 0;
   }
   else if (!bval && loop_button_val) {
+    // button up
     loop_button_val = false;
-    if (pause) {
-      end_pause();
+    loop_button_act = false;
+    if (last_button_millis > BUTTON_LONG_TIMEOUT) {
+      // long press release
     }
     else {
-      if (alarm) {
-        end_alarm();
-      }
-      timer = !timer;
-      if (timer) {
-        begin_timer();
+      // normal press release
+      if (pause) {
+        end_pause();
       }
       else {
-        end_timer();
+        if (alarm) {
+          end_alarm();
+        }
+        timer = !timer;
+        if (timer) {
+          begin_timer();
+        }
+        else {
+          end_timer();
+        }
       }
     }
     last_action_millis = 0;
+  }
+  else {
+    if (loop_button_act && loop_button_val && last_button_millis > BUTTON_LONG_TIMEOUT) {
+      // long press
+      fastled_toggle_brightness();
+      loop_button_act = false;
+    }
   }
 
   // begin pause after set time without user action if not in timer mode
