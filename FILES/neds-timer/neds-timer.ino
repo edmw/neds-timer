@@ -585,7 +585,7 @@ void buzzer_beep() {
   unsigned long now = buzzer_beep_millis - millis();
   if (now & 0x100 && now & 0x10) {
     if (buzzer_beep_tone == 0) {
-      tone(BUZZER_PIN, NOTE_C7, 10);
+      tone(BUZZER_PIN, NOTE_GS7, 10);
     }
   }
   else {
