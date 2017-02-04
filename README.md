@@ -9,4 +9,6 @@
  * His remaining time will be shown on led ring.
 * Visual and acustic alarm is triggered after timer has been expired.
 
+![Ned’s Timer](/FILES/timer.jpg?raw=true "Ned’s Timer")
+
 ![Ned’s Timer circuit](/FILES/circuit.png?raw=true "Ned’s Timer circuit")
