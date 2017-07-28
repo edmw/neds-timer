@@ -13,6 +13,8 @@
 
 ![Ned’s Timer circuit](/FILES/circuit.png?raw=true "Ned’s Timer circuit")
 
+[Ned‘s Timer is powered by four nickel-metal hydride rechargeable cells in a 4-cell battery holder.](POWER.md)
+
 ```Arduino
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // neds-timer - https://github.com/edmw/neds-timer
